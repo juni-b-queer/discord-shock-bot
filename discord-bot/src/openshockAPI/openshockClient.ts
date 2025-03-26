@@ -1,0 +1,94 @@
+import dotenv from "dotenv";
+import path from "node:path";
+
+export enum HttpMethod {
+    GET = "GET",
+    POST = "POST",
+    PUT = "PUT",
+    PATCH = "PATCH",
+    DELETE = "DELETE"
+}
+
+export type OpenshockControlSchema = {
+    id: string;
+    intensity: number;
+    duration: number;
+    type: 'Shock' | 'Vibrate';
+    exclusive: boolean;
+};
+
+export class OpenShockClient {
+    constructor(
+        private apiKey: string,
+        private apiUrl: string = "https://api.openshock.app/") {
+    }
+
+    public async makeRequest(method: HttpMethod, path: string, body?: any) {
+        const headers = {
+            "Content-Type": "application/json",
+            "OpenShockToken": `${this.apiKey}`
+        };
+
+        let url = `${this.apiUrl}${path}`;
+        let requestOptions: RequestInit = {
+            method,
+            headers
+        };
+
+        if (method === HttpMethod.GET && body) {
+            // Generate query parameters from body
+            const queryParams = new URLSearchParams(body).toString();
+            url += `?${queryParams}`;
+        } else if ([HttpMethod.PUT, HttpMethod.PATCH, HttpMethod.POST].includes(method) && body) {
+            // Set body as JSON
+            requestOptions.body = JSON.stringify(body);
+        }
+
+        try {
+            const response = await fetch(url, requestOptions);
+
+            if (!response.ok) {
+                const errorResponse = await response.json();
+                throw new Error(`HTTP Error: ${response.status} - ${errorResponse.message || response.statusText}`);
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error("Error making request:", error);
+            throw error;
+        }
+
+    }
+
+
+    public async linkShare(shareCodeId: string) {
+        const path = `1/shares/code/${shareCodeId}`
+        const method = HttpMethod.POST
+        return await this.makeRequest(method, path)
+    }
+
+    public async controlDevice(controlRequests: OpenshockControlSchema[]) {
+        const path = `2/shockers/control`
+        const method = HttpMethod.POST
+        const body = {
+            shocks: [...controlRequests]
+        }
+        return await this.makeRequest(method, path, body)
+    }
+
+    public static generateControlRequest(id: string, type: 'Shock' | 'Vibrate', intensity: number, duration: number, exclusive: boolean): OpenshockControlSchema {
+        return {
+            id: id,
+            intensity: intensity,
+            duration: duration,
+            type: type,
+            exclusive: exclusive
+        }
+    }
+
+
+}
+
+dotenv.config({path: path.join(__dirname, '../../../.env')});
+
+export const openShockClient = new OpenShockClient(process.env.OPENSHOCK_API_KEY ?? "");

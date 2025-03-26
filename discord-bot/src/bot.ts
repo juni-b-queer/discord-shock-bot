@@ -3,6 +3,10 @@ import dotenv from 'dotenv';
 import path from "path";
 import fs from "fs";
 import {InteractionDeps} from "./utils/deps";
+import * as schema from "./db/schema";
+import {openShockClient} from "./openshockAPI/openshockClient";
+import mysql from "mysql2/promise";
+import {drizzle, MySql2Database} from "drizzle-orm/mysql2";
 import {db} from "./db";
 
 interface ClientWithCommands extends Client {
@@ -47,9 +51,18 @@ console.log('commands')
 const eventsPath = path.join(__dirname, 'events');
 const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith('.ts'));
 
+// const connection = await mysql.createConnection({
+//     host: "host",
+//     user: "user",
+//     database: "database",
+// });
+
+// const db = drizzle({client: connection, schema: schema});
+
 const deps: InteractionDeps = {
     client,
-    database: db
+    database: db,
+    openshockClient: openShockClient
 
 }
 

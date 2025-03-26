@@ -1,0 +1,26 @@
+{
+  "name": "discord-bot",
+  "version": "1.0.0",
+  "description": "A modular Discord bot using TypeScript and discord.js",
+  "main": "dist/bot.js",
+  "scripts": {
+    "start": "node dist/bot.js",
+    "build": "tsc",
+    "dev": "ts-node src/bot.ts",
+    "refresh-commands": "ts-node src/deploy.ts",
+    "update-db": "npx drizzle-kit push"
+  },
+  "dependencies": {
+    "discord.js": "^14.18.0",
+    "dotenv": "^16.4.7",
+    "drizzle-orm": "^0.41.0",
+    "mysql2": "^3.14.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.4.1",
+    "drizzle-kit": "^0.30.5",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.19.3",
+    "typescript": "^5.1.6"
+  }
+}

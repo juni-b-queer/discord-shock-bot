@@ -1,7 +1,6 @@
 import {BaseGuildTextChannel, Channel, ChatInputCommandInteraction, Client, SlashCommandBuilder} from 'discord.js';
 import {InteractionDeps} from "../../utils/deps";
 import {guildsTable} from "../../db/schema";
-import {int} from "drizzle-orm/mysql-core/index";
 import {eq} from "drizzle-orm";
 
 module.exports = {

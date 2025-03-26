@@ -5,11 +5,11 @@ import path from 'node:path';
 
 
 
-dotenv.config({path: path.join(__dirname, '../../.env')});
+dotenv.config({path: path.join(__dirname, '../../../.env')});
 
 const commands = [];
 // Grab all the command folders from the commands directory you created earlier
-const foldersPath = path.join(__dirname, 'commands');
+const foldersPath = path.join(__dirname, '../commands');
 
 const commandFolders = fs.readdirSync(foldersPath);
 

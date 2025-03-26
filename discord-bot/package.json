@@ -7,7 +7,7 @@
     "start": "node dist/bot.js",
     "build": "tsc",
     "dev": "ts-node src/bot.ts",
-    "refresh-commands": "ts-node src/deploy.ts",
+    "refresh-commands": "ts-node src/scripts/deploy-commands.ts",
     "update-db": "npx drizzle-kit push"
   },
   "dependencies": {

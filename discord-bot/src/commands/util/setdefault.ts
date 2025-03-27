@@ -24,7 +24,7 @@ module.exports = {
             return await interaction.reply({content: 'Failed to set default shocker.', flags: MessageFlags.Ephemeral})
         }
 
-        debugLog("INFO", "setLimit", `Changed default shocker to ${defaultShocker} for ${interaction.user.username}`)
+        debugLog("INFO", "setDefault", `Changed default shocker to ${defaultShocker} for ${interaction.user.username}`)
         await interaction.reply({content: `Set default shocker to ${defaultShocker}`, flags: MessageFlags.Ephemeral});
     },
     async autocomplete(dependencies: InteractionDeps, interaction: AutocompleteInteraction) {

@@ -1,4 +1,12 @@
-import {ChatInputCommandInteraction, EmbedBuilder, GuildMember, RestOrArray, APIEmbedField, SlashCommandBuilder} from 'discord.js';
+import {
+    ChatInputCommandInteraction,
+    EmbedBuilder,
+    GuildMember,
+    RestOrArray,
+    APIEmbedField,
+    SlashCommandBuilder,
+    MessageFlags
+} from 'discord.js';
 import {InteractionDeps} from "../../utils/deps";
 import {eq} from "drizzle-orm";
 import {usersTable} from "../../db/schema";
@@ -15,8 +23,12 @@ module.exports = {
         if(interaction.options.getMentionable('user') === null){
             const dbGuild = await dependencies.dbClient.getUsersFromGuild(interaction.guildId!)
             if(!dbGuild){
-                return await interaction.reply('Guild has not been setup')
+                return await interaction.reply({content: 'Guild has not been setup', flags: MessageFlags.Ephemeral})
             }
+            if(dbGuild.users.length === 0){
+                return await interaction.reply({content:'No users registered in this server', flags: MessageFlags.Ephemeral})
+            }
+
             await interaction.deferReply()
             const listUsers = dbGuild.users.map((user) => {
                 const shockers = user.shockers.map((shocker) => {
@@ -26,7 +38,6 @@ module.exports = {
                     name: `Name: ${user.globalName}${user.paused ? ' (paused)' : ''}`, value: `Shockers: ${shockers}`
                 }
             })
-
 
             const listEmbed = new EmbedBuilder()
                 .setColor(0x0099FF)
@@ -42,7 +53,7 @@ module.exports = {
             const user = await dependencies.dbClient.getUserFromInteractionOptions(interaction)
 
             if(!user){
-                return await interaction.reply('User not registered.')
+                return await interaction.reply({content: 'User not registered.', flags: MessageFlags.Ephemeral})
             }
 
             const shockers = user.shockers.map((shocker) => {
@@ -50,7 +61,7 @@ module.exports = {
             })
 
             if(shockers.length === 0){
-                return await interaction.reply('No shockers found for this user')
+                return await interaction.reply({content: 'No shockers found for this user', flags: MessageFlags.Ephemeral})
             }
 
             const listEmbed = new EmbedBuilder()

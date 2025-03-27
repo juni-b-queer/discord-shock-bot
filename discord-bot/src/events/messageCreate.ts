@@ -81,6 +81,8 @@ module.exports = {
                 output += '\nAPI token updated'
             }
 
+            output+= '\n\nRemember to use `/unpause` in your server to start receiving shocks.'
+
             await interaction.author.send(output)
 
             debugLog("INFO", "messageCreate", `Shocker setup for ${dbUser!.globalName}`)

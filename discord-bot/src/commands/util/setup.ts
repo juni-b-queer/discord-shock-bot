@@ -16,10 +16,10 @@ module.exports = {
         .setName('setup')
         .setDescription('Start setup flow'),
     async execute(dependencies: InteractionDeps, interaction: ChatInputCommandInteraction) {
-        await interaction.deferReply();
+        // await interaction.deferReply();
         const channel: Channel = (await dependencies.client.channels.fetch(interaction.channelId))!;
         if (!channel) {
-            await interaction.followUp('No Channel');
+            await interaction.reply('No Channel');
         }
         if(channel.isSendable()){
             const guildId = interaction.guildId!
@@ -31,7 +31,7 @@ module.exports = {
                 const setupMessage = await channel.messages.fetch(existingGuild[0].setupMessageId)
                 setupMessage.reply(
                     'Setup has already been done for this guild. Please use the existing setup message')
-                await interaction.followUp('Error during setup')
+                await interaction.reply('Error during setup')
                 return
             }
 
@@ -45,7 +45,7 @@ module.exports = {
 
             await dependencies.database.insert(guildsTable).values(guildValues)
         }
-        await interaction.followUp({content: 'Setup is ready', flags: MessageFlags.Ephemeral})
+        await interaction.reply({content: 'Setup is ready', flags: MessageFlags.Ephemeral})
 
     },
 };

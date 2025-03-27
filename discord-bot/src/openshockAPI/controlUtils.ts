@@ -1,38 +1,36 @@
 import {InteractionDeps} from "../utils/deps";
-import {ChatInputCommandInteraction, GuildMember} from "discord.js";
-import {eq} from "drizzle-orm";
-import {usersTable} from "../db/schema";
+import {ChatInputCommandInteraction, GuildMember, MessageFlags} from "discord.js";
 import {OpenshockControlSchema} from "./openshockClient";
 import {debugLog} from "../utils/debug";
 
 export async function generateAndRunBasicControlRequests(dependencies: InteractionDeps, interaction: ChatInputCommandInteraction, action:"Shock"|"Vibrate") {
-    const member: GuildMember = interaction.options.getMentionable('user') as GuildMember;
     const options = {
         duration: interaction.options.getNumber('duration')!,
         intensity: interaction.options.getNumber('intensity')!,
         shocker: interaction.options.getString('shocker'),
-        user: member.user.id,
     }
-    const user = (await dependencies.database.query.usersTable.findFirst({
-        where: eq(usersTable.userId, member.user.id),
-        with: {
-            shockers: true
-        }
-    }))
+    const user = await dependencies.dbClient.getUserFromInteractionOptions(interaction)
+
     if(!user){
-        return await interaction.reply('User not registered.')
+        return await interaction.reply({content:'User not registered.', flags:MessageFlags.Ephemeral})
+    }
+    if(!user.apiKey){
+        return await interaction.reply({content: 'User has not set up their shockers', flags:MessageFlags.Ephemeral})
     }
     if(user.paused){
-        return await interaction.reply('This user has paused their shockers')
+        return await interaction.reply({content: 'This user has paused their shockers', flags:MessageFlags.Ephemeral})
     }
 
-    const apiKey = user.apiKey!;
+    await interaction.deferReply();
+
+    const apiKey = user.apiKey;
+
     const shockerIds = [];
     if(options.shocker === null){
         user.shockers.forEach(shocker => shockerIds.push(shocker.shockerId))
     }else{
         const selectedShocker = user.shockers
-            .find(shocker => shocker.name === interaction.options.getString('shocker')!)!
+            .find(shocker => shocker.name === options.shocker)!
         shockerIds.push(selectedShocker.shockerId)
     }
 
@@ -57,7 +55,7 @@ export async function generateAndRunBasicControlRequests(dependencies: Interacti
     const messageAction = action === "Shock" ? "Shocking" : "Vibrating"
 
     const output = `${messageAction} ${user.globalName} for ${options.duration}ms with intensity ${options.intensity}`
-    await interaction.reply(output);
+    await interaction.followUp(output);
 
     debugLog("INFO", action, output)
 }

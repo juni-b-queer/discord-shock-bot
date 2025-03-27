@@ -19,13 +19,8 @@ module.exports = {
                 .setDescription('The name of the users shocker')
                 .setAutocomplete(true)),
     async execute(dependencies: InteractionDeps, interaction: ChatInputCommandInteraction) {
-        const member: GuildMember = interaction.options.getMentionable('user') as GuildMember;
-        const user = (await dependencies.database.query.usersTable.findFirst({
-            where: eq(usersTable.userId, member.user.id),
-            with: {
-                shockers: true
-            }
-        }))
+        const user = await dependencies.dbClient.getUserFromInteractionOptions(interaction)
+
         if(!user){
             return await interaction.reply('User not registered.')
         }

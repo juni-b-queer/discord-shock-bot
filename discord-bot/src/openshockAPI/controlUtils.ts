@@ -21,7 +21,8 @@ export async function generateAndRunBasicControlRequests(dependencies: Interacti
         return await interaction.reply({content: 'This user has paused their shockers', flags:MessageFlags.Ephemeral})
     }
     if(user.intensityLimit < options.intensity){
-        return await interaction.reply({content: `This user has an intensity limit of ${user.intensityLimit}`, flags:MessageFlags.Ephemeral})
+        options.intensity = user.intensityLimit
+        // return await interaction.reply({content: `This user has an intensity limit of ${user.intensityLimit}`, flags:MessageFlags.Ephemeral})
     }
 
     await interaction.deferReply();
@@ -50,7 +51,7 @@ export async function generateAndRunBasicControlRequests(dependencies: Interacti
         controlRequests.push(
             {
                 duration: options.duration,
-                exclusive: false,
+                exclusive: true,
                 id: shockerId,
                 intensity: options.intensity,
                 type: action
@@ -63,8 +64,20 @@ export async function generateAndRunBasicControlRequests(dependencies: Interacti
 
     const messageAction = action === "Shock" ? "Shocking" : "Vibrating"
 
-    const output = `${messageAction} ${user.globalName} for ${options.duration}ms with intensity ${options.intensity}`
+    const output = `${messageAction} ${user.globalName} for ${options.duration}ms with intensity ${options.intensity}${options.intensity !== interaction.options.getNumber('intensity') ? ` (max ${user.intensityLimit})` : ''}`
     await interaction.followUp(output);
 
     debugLog("INFO", action, output)
+}
+
+export function sequenceParser(sequenceString: string, repetitions: number = 1): OpenshockControlSchema[]{
+    const commands = sequenceString.split(',')
+
+    let returnedCommands: OpenshockControlSchema[] = []
+
+    for(const command of commands){
+
+    }
+
+    return returnedCommands
 }

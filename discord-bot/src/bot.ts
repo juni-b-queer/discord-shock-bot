@@ -15,7 +15,7 @@ interface ClientWithCommands extends Client {
 
 dotenv.config({path: path.join(__dirname, '../../.env')});
 
-console.log('start')
+console.log('Starting Bot')
 
 const client: ClientWithCommands = new Client({
     intents: [
@@ -46,7 +46,7 @@ for (const folder of commandFolders) {
     }
 }
 
-console.log('commands')
+console.log('Commands Initialized')
 
 const eventsPath = path.join(__dirname, 'events');
 const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith('.ts'));
@@ -70,5 +70,5 @@ for (const file of eventFiles) {
     }
 }
 
-console.log('events')
+console.log('Events Initialized')
 client.login(process.env.DISCORD_TOKEN);

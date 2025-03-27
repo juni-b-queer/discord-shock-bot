@@ -3,6 +3,8 @@ import {InteractionDeps} from "../../utils/deps";
 import {eq} from "drizzle-orm";
 import {usersTable} from "../../db/schema";
 import {shockerAutocomplete} from "../../utils/autocomplete";
+import {OpenshockControlSchema} from "../../openshockAPI/openshockClient";
+import {sequenceParser} from "../../openshockAPI/controlUtils";
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -28,6 +30,9 @@ module.exports = {
             return await interaction.reply('This user has paused their shockers')
         }
         // TODO
+        const sequenceString = interaction.options.getString('sequencestring')!
+
+        const sequenceCommands: OpenshockControlSchema[] = sequenceParser(sequenceString);
 
         // parse sequence
         await interaction.reply('**TODO** Got sequence command');

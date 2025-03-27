@@ -19,11 +19,11 @@ module.exports = {
         const commands = [
             {
                 name: '/shock {user} {intensity} {duration} {shocker?}',
-                value: 'Shock a user. If no shocker is specified, all shockers will be used'
+                value: 'Shock a user. If no shocker is specified, user default or all shockers will be used'
             },
             {
                 name: '/vibrate {user} {intensity} {duration} {shocker?}',
-                value: 'Vibrate a users shocker. If no shocker is specified, all shockers will be used'
+                value: 'Vibrate a users shocker. If no shocker is specified, user default or all shockers will be used'
             },
             {
                 name: '/repeat {user} {sequence} {repetitions} {shocker?}',

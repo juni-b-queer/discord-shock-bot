@@ -10,7 +10,7 @@ export type OpenshockControlSchema = {
     id: string;
     intensity: number;
     duration: number;
-    type: 'Shock' | 'Vibrate';
+    type: 'Shock' | 'Vibrate' | "Off";
     exclusive: boolean;
 };
 

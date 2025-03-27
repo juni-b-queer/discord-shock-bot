@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 import path from "path";
 import * as schema from "./schema";
 import {createPool} from "mysql2/promise";
-import {eq} from "drizzle-orm";
+import {and, eq} from "drizzle-orm";
 import {guildsTable, shockersTable, usersTable} from "./schema";
 import {ChatInputCommandInteraction, GuildMember, MessageFlags} from "discord.js";
 import {debugLog} from "../utils/debug";
@@ -91,6 +91,104 @@ export class DBClient {
             }
         }catch (e){
             debugLog("ERROR", "toggleUserPaused", `failed to toggle pause for user ${user}`)
+            return false;
+        }
+    }
+
+    public async editUserIntensityLimit(user: typeof usersTable | string, limit: number){
+        try {
+            if(typeof user === 'string'){
+                const dbUser = await this.db.query.usersTable.findFirst({
+                    where: eq(usersTable.userId, user),
+                })
+                if(!dbUser){
+                    return false;
+                }
+
+                await this.db.update(usersTable)
+                    .set({intensityLimit: limit})
+                    .where(eq(usersTable.id, dbUser.id));
+
+                return true;
+
+            }else{
+                await this.db.update(usersTable)
+                    .set({intensityLimit: limit})
+                    .where(eq(usersTable.id, user.id));
+
+                return true;
+            }
+        }catch (e){
+            debugLog("ERROR", "editUserIntensityLimit", `failed to update intensity limit for user ${user}`)
+            return false;
+        }
+    }
+
+    public async setUserDefaultShocker(user: typeof usersTable | string, shockerName: string){
+        try {
+            if(typeof user === 'string'){
+                const dbUser = await this.db.query.usersTable.findFirst({
+                    where: eq(usersTable.userId, user),
+                })
+                if(!dbUser){
+                    return false;
+                }
+
+                await this.db.update(shockersTable).set({default: false}).where(eq(shockersTable.userId, dbUser.id))
+
+                await this.db.update(shockersTable).set({default: true})
+                    .where(and(
+                        eq(shockersTable.name, shockerName),
+                        eq(shockersTable.userId, dbUser.id)
+                    ))
+
+                return true;
+
+            }else{
+                await this.db.update(shockersTable).set({default: false})
+                    .where(eq(shockersTable.userId, user.id))
+
+                await this.db.update(shockersTable).set({default: true})
+                    .where(and(
+                        eq(shockersTable.name, shockerName),
+                        eq(shockersTable.userId, user.id)
+                    ))
+
+                return true;
+            }
+        }catch (e){
+            debugLog("ERROR", "setUserDefaultShocker", `failed to set user default shocker ${user}`)
+            return false;
+        }
+    }
+
+    public async getUserDefaultShocker(user: typeof usersTable | string){
+        try {
+            if(typeof user === 'string'){
+                const dbUser = await this.db.query.usersTable.findFirst({
+                    where: eq(usersTable.userId, user),
+                })
+                if(!dbUser){
+                    return false;
+                }
+
+                return await this.db.query.shockersTable.findFirst({
+                    where: and(
+                        eq(shockersTable.default, true),
+                        eq(shockersTable.userId, dbUser.id)
+                    ),
+                })
+
+            }else{
+                return await this.db.query.shockersTable.findFirst({
+                    where: and(
+                        eq(shockersTable.default, true),
+                        eq(shockersTable.userId, user.id)
+                    ),
+                })
+            }
+        }catch (e){
+            debugLog("ERROR", "getUserDefaultShocker", `failed to get user default shocker ${user}`)
             return false;
         }
     }

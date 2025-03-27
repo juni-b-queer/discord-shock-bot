@@ -20,6 +20,7 @@ export const usersTable = mysqlTable('users_table', {
     globalName: varchar({ length: 255 }).notNull(),
     apiKey: varchar({ length: 255 }),
     paused: boolean().notNull().default(true),
+    intensityLimit: int().notNull().default(100),
 });
 
 export const shockersTable = mysqlTable('shockers_table', {
@@ -30,6 +31,7 @@ export const shockersTable = mysqlTable('shockers_table', {
     shareCode: varchar({ length: 255 }),
     shockerId: varchar({ length: 255 }).notNull(),
     name: varchar({ length: 255 }),
+    default: boolean().notNull().default(false),
 });
 
 export const guildRelations = relations(guildsTable, ({ many }) => ({

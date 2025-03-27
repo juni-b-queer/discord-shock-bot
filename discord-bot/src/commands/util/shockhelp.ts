@@ -46,6 +46,14 @@ module.exports = {
                 value: 'Unpause control of your shockers.'
             },
             {
+                name: '/setlimit {intensityLimit}',
+                value: 'Set the max intensity for your shockers. Between 1 and 100'
+            },
+            {
+                name: '/setdefault {shocker}',
+                value: 'Set the default shocker for you. If no default is selected, when a control command is sent to you without a shocker, all shockers will be used'
+            },
+            {
                 name: '/shockhelp',
                 value: 'Show this message :)'
             },

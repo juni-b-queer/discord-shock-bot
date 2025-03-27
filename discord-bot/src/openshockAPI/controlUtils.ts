@@ -20,6 +20,9 @@ export async function generateAndRunBasicControlRequests(dependencies: Interacti
     if(user.paused){
         return await interaction.reply({content: 'This user has paused their shockers', flags:MessageFlags.Ephemeral})
     }
+    if(user.intensityLimit < options.intensity){
+        return await interaction.reply({content: `This user has an intensity limit of ${user.intensityLimit}`, flags:MessageFlags.Ephemeral})
+    }
 
     await interaction.deferReply();
 
@@ -27,7 +30,13 @@ export async function generateAndRunBasicControlRequests(dependencies: Interacti
 
     const shockerIds = [];
     if(options.shocker === null){
-        user.shockers.forEach(shocker => shockerIds.push(shocker.shockerId))
+        const defaultShocker = await dependencies.dbClient.getUserDefaultShocker(user.userId)
+
+        if(!defaultShocker){
+            user.shockers.forEach(shocker => shockerIds.push(shocker.shockerId))
+        }else{
+            shockerIds.push(defaultShocker.shockerId)
+        }
     }else{
         const selectedShocker = user.shockers
             .find(shocker => shocker.name === options.shocker)!

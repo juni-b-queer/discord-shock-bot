@@ -32,10 +32,10 @@ module.exports = {
             await interaction.deferReply()
             const listUsers = dbGuild.users.map((user) => {
                 const shockers = user.shockers.map((shocker) => {
-                    return shocker.name
+                    return shocker.name + (shocker.default ? ' (default)' : '')
                 }).join(', ')
                 return {
-                    name: `Name: ${user.globalName}${user.paused ? ' (paused)' : ''}`, value: `Shockers: ${shockers}`
+                    name: `Name: ${user.globalName}${user.paused ? ' (paused)' : ''}`, value: `Intensity Limit: ${user.intensityLimit}\nShockers: ${shockers}`
                 }
             })
 
@@ -57,7 +57,7 @@ module.exports = {
             }
 
             const shockers = user.shockers.map((shocker) => {
-                return shocker.name
+                return shocker.name + (shocker.default ? ' (default)' : '')
             })
 
             if(shockers.length === 0){
@@ -67,7 +67,7 @@ module.exports = {
             const listEmbed = new EmbedBuilder()
                 .setColor(0x0099FF)
                 .setTitle(`Shockers for ${user.globalName}:`)
-                .setDescription(shockers.join(', '))
+                .setDescription(`${shockers.join(', ')}\n\nIntensity Limit: ${user.intensityLimit}`)
 
             debugLog("INFO", "list-user", "Listed user shockers")
 

@@ -32,8 +32,7 @@ export class DBClient {
         const user = await this.drizzleClient.query.usersTable.findFirst({
             where: eq(usersTable.userId,userGuildId),
             with: {
-                shockers: true,
-                shares: true
+                shockers: true
             }
         })
         if(!user){

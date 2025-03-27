@@ -12,7 +12,6 @@ module.exports = {
                 .setDescription('The User to shock').setRequired(true)),
     async execute(dependencies: InteractionDeps, interaction: ChatInputCommandInteraction) {
         const member: GuildMember = interaction.options.getMentionable('user') as GuildMember;
-        console.log(member.user.id);
 
         const user = (await dependencies.database.query.usersTable.findFirst({
             where: eq(usersTable.userId, member.user.id),

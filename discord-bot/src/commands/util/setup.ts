@@ -15,6 +15,7 @@ module.exports = {
         }
         if(channel.isSendable()){
             const guildId = interaction.guildId!
+            console.log(`Setup for guild ${guildId}`)
             const existingGuild = await dependencies.database
                 .select().from(guildsTable)
                 .where(eq(guildsTable.guildId, guildId))

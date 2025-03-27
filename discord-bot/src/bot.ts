@@ -7,7 +7,7 @@ import * as schema from "./db/schema";
 import {openShockClient} from "./openshockAPI/openshockClient";
 import mysql from "mysql2/promise";
 import {drizzle, MySql2Database} from "drizzle-orm/mysql2";
-import {db} from "./db";
+import {db, DBClient} from "./db";
 
 interface ClientWithCommands extends Client {
     commands: Collection<string, any>
@@ -62,6 +62,7 @@ const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith('.ts'
 const deps: InteractionDeps = {
     client,
     database: db,
+    dbClient: new DBClient(db),
     openshockClient: openShockClient
 
 }

@@ -129,13 +129,17 @@
 <div id="app">
     <!-- Form Section -->
     <div class="page-content" v-if="!hasApiKey">
-        <h2>Paste your key here</h2>
-        <input type="text" class="custom-textbox" v-model="apiKey" placeholder="Enter your key">
+        <h2>Paste your API Token here</h2>
+        <p>Generate your token using the <a href="https://openshock.app/#/dashboard/tokens" target="_blank">OpenShock UI</a></p>
+        <input type="text" class="custom-textbox" v-model="apiKey" placeholder="Enter your API key">
         <button class="submit-btn" @click="submitApiKey">Submit</button>
     </div>
 
-<!--    Select shockers -->
+    <!--    Select shockers -->
     <div class="page-content" v-if="hasApiKey && !isSharing && !sharingComplete">
+        <div v-if="shockers.length === 0">
+            Retrieving shockers...
+        </div>
         <template v-for="shocker in shockers">
             <div class="shocker-card">
                 <label>
@@ -162,7 +166,7 @@
     <div class="page-content" v-if="hasApiKey">
         <!-- Display "setting up share" message -->
         <div v-if="isSharing">
-            <h3>Setting up share...</h3>
+            <h3>Preparing output...</h3>
         </div>
 
         <!-- Display generated output -->
@@ -181,7 +185,6 @@
     createApp({
         // Reactive properties
         apiKey: '',
-        steps: [],
         shockers: [],
         shockerData: [],
         hasApiKey: false,
@@ -189,8 +192,10 @@
         isSharing: false,
         sharingComplete: false,
         generatedOutput: '',
+        includeAPITokenInOutput: true,
         // Methods
         async submitApiKey() {
+            this.hasApiKey = true;
             const response = await this.makeOpenshockAPICall('GET', '1/shockers/own');
             const hubs = response.data;
             for (const hub of hubs) {
@@ -202,16 +207,26 @@
                     });
                 })
             }
-            this.hasApiKey = true;
+
         },
         async initializeShare() {
             this.isSharing = true;
             this.generatedOutput = '';
 
-            // TODO Replace with actual share creation call
-            await new Promise(resolve => setTimeout(resolve, 2000));
+            let shareShockers = [];
+            for (const key of Object.keys(this.selectedShockers)) {
+                shareShockers.push(
+                    {
+                        id: this.selectedShockers[key].id,
+                        name: this.selectedShockers[key].name,
+                    }
+                )
+            }
 
-            this.generatedOutput = this.outputGenerator();
+            this.generatedOutput =JSON.stringify({
+                shockers: shareShockers,
+                apiToken: this.includeAPITokenInOutput ? this.apiKey : null
+            }, null, 0) ;
 
             this.isSharing = false;
             this.sharingComplete = true;
@@ -219,6 +234,7 @@
         async makeOpenshockAPICall(method, path, data = null) {
             try {
                 const response = await fetch(`https://api.openshock.app/${path}`, {
+                    credentials: 'include',
                     method: method,
                     headers: {
                         'Content-Type': 'application/json',
@@ -234,7 +250,7 @@
                 return await response.json();
             } catch (error) {
                 console.error('Error occurred during API call:', error);
-                throw error;
+                return null;
             }
         },
         toggleShockerSelection(shocker) {
@@ -250,21 +266,6 @@
             if (this.selectedShockers[shocker.id]) {
                 this.selectedShockers[shocker.id].name = shocker.name;
             }
-        },
-        outputGenerator() {
-            let shockerMap = []
-            console.log()
-            for (const key of Object.keys(this.selectedShockers)) {
-                shockerMap.push({
-                    name: this.selectedShockers[key].name,
-                    id: this.selectedShockers[key].id
-                })
-            }
-            let output = {
-                shockers: shockerMap,
-                shareId: "temp"
-            }
-            return JSON.stringify(output, null, 0);
         },
         async copyToClipboard() {
             try {

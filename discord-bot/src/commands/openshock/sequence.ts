@@ -23,19 +23,19 @@ module.exports = {
         const user = (await dependencies.database.query.usersTable.findFirst({
             where: eq(usersTable.userId, member.user.id),
             with: {
-                shockers: true,
-                shares: true
+                shockers: true
             }
         }))
         if(!user){
             return await interaction.reply('User not registered.')
         }
-        if(user.shares[0].paused){
+        if(user.paused){
             return await interaction.reply('This user has paused their shockers')
         }
+        // TODO
 
         // parse sequence
-        await interaction.reply('Got sequence command');
+        await interaction.reply('**TODO** Got sequence command');
     },
     async autocomplete(dependencies: InteractionDeps, interaction: AutocompleteInteraction){
         await shockerAutocomplete(dependencies, interaction)

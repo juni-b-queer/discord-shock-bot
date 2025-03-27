@@ -1,6 +1,3 @@
-import dotenv from "dotenv";
-import path from "node:path";
-
 export enum HttpMethod {
     GET = "GET",
     POST = "POST",
@@ -19,14 +16,13 @@ export type OpenshockControlSchema = {
 
 export class OpenShockClient {
     constructor(
-        private apiKey: string,
         private apiUrl: string = "https://api.openshock.app/") {
     }
 
-    public async makeRequest(method: HttpMethod, path: string, body?: any) {
+    public async makeRequest(apiKey: string, method: HttpMethod, path: string, body?: any) {
         const headers = {
             "Content-Type": "application/json",
-            "OpenShockToken": `${this.apiKey}`
+            "OpenShockToken": `${apiKey}`
         };
 
         let url = `${this.apiUrl}${path}`;
@@ -61,19 +57,19 @@ export class OpenShockClient {
     }
 
 
-    public async linkShare(shareCodeId: string) {
-        const path = `1/shares/code/${shareCodeId}`
-        const method = HttpMethod.POST
-        return await this.makeRequest(method, path)
-    }
+    // public async linkShare(shareCodeId: string) {
+    //     const path = `1/shares/code/${shareCodeId}`
+    //     const method = HttpMethod.POST
+    //     return await this.makeRequest(method, path)
+    // }
 
-    public async controlDevice(controlRequests: OpenshockControlSchema[]) {
+    public async controlDevice(apiKey: string, controlRequests: OpenshockControlSchema[]) {
         const path = `2/shockers/control`
         const method = HttpMethod.POST
         const body = {
             shocks: [...controlRequests]
         }
-        return await this.makeRequest(method, path, body)
+        return await this.makeRequest(apiKey, method, path, body)
     }
 
     public static generateControlRequest(id: string, type: 'Shock' | 'Vibrate', intensity: number, duration: number, exclusive: boolean): OpenshockControlSchema {
@@ -89,6 +85,4 @@ export class OpenShockClient {
 
 }
 
-dotenv.config({path: path.join(__dirname, '../../../.env')});
-
-export const openShockClient = new OpenShockClient(process.env.OPENSHOCK_API_KEY ?? "");
+export const openShockClient = new OpenShockClient();

@@ -34,8 +34,8 @@ module.exports = {
                 const setupEmbed = new EmbedBuilder()
                     .setColor(0x0099FF)
                     .setTitle('ShockBot Setup')
-                    .setURL('https://github.com/juni-b-queer/discord-shock-bot')
-                    .setDescription('Please go to this link and follow the instructions, the page will give you a blob of text to paste here.')
+                    .setURL('https://juni-b-queer.github.io/discord-shock-bot/web/')
+                    .setDescription('Please go to this link and follow the instructions, the page will give you a blob of text to paste here. You can also go through this process again to add new shockers, or change the names of existing ones.')
                     .setTimestamp()
 
                 await user.send({embeds: [setupEmbed]})
@@ -50,6 +50,7 @@ module.exports = {
                 }
 
                 await dependencies.database.insert(usersTable).values(userValues)
+                console.log(`Added user ${user.username} to database`)
             }
         }
     },

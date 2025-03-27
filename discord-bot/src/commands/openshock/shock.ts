@@ -8,6 +8,9 @@ import {InteractionDeps} from "../../utils/deps";
 import {shockersTable, usersTable} from "../../db/schema";
 import {eq} from "drizzle-orm";
 import {shockerAutocomplete} from "../../utils/autocomplete";
+import {OpenshockControlSchema} from "../../openshockAPI/openshockClient";
+import {int} from "drizzle-orm/mysql-core";
+import {generateAndRunBasicControlRequests} from "../../openshockAPI/controlUtils";
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -27,27 +30,7 @@ module.exports = {
                 .setDescription('The name of the users shocker')
                 .setAutocomplete(true)),
     async execute(dependencies: InteractionDeps, interaction: ChatInputCommandInteraction) {
-        const member: GuildMember = interaction.options.getMentionable('user') as GuildMember;
-        const user = (await dependencies.database.query.usersTable.findFirst({
-            where: eq(usersTable.userId, member.user.id),
-            with: {
-                shockers: true,
-                shares: true
-            }
-        }))
-        if(!user){
-            return await interaction.reply('User not registered.')
-        }
-        if(user.shares[0].paused){
-            return await interaction.reply('This user has paused their shockers')
-        }
-
-
-
-        console.log(interaction.options)
-
-        // Todo run openshock api call
-        await interaction.reply('Got shock command');
+        await generateAndRunBasicControlRequests(dependencies, interaction, "Shock")
     },
     async autocomplete(dependencies: InteractionDeps, interaction: AutocompleteInteraction){
         await shockerAutocomplete(dependencies, interaction)

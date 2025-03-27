@@ -1,7 +1,7 @@
 import {ChatInputCommandInteraction, MessageFlags, SlashCommandBuilder} from 'discord.js';
 import {InteractionDeps} from "../../utils/deps";
 import {eq} from "drizzle-orm";
-import {sharesTable, usersTable} from "../../db/schema";
+import {usersTable} from "../../db/schema";
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -9,11 +9,9 @@ module.exports = {
         .setDescription('Unpause user shockers'),
     async execute(dependencies: InteractionDeps, interaction: ChatInputCommandInteraction) {
         const guildUser = interaction.user.id;
+        console.log(`Unpaused ${interaction.user.username}`)
         const dbUser = await dependencies.database.query.usersTable.findFirst({
             where: eq(usersTable.userId, guildUser),
-            with:{
-                shares: true
-            }
         })
 
         if(!dbUser) {
@@ -22,15 +20,15 @@ module.exports = {
             )
         }
 
-        if(!dbUser.shares[0].paused){
+        if(!dbUser.paused){
             return await interaction.reply(
                 {content:'Your shockers are already unpaused', flags: MessageFlags.Ephemeral}
             )
         }
 
-        await dependencies.database.update(sharesTable)
+        await dependencies.database.update(usersTable)
             .set({paused: false})
-            .where(eq(sharesTable.userId, dbUser.id));
+            .where(eq(usersTable.id, dbUser.id));
 
 
         await interaction.reply({content: 'Unpaused your shockers', flags: MessageFlags.Ephemeral});

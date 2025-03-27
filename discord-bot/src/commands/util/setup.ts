@@ -16,6 +16,14 @@ module.exports = {
         .setName('setup')
         .setDescription('Start setup flow'),
     async execute(dependencies: InteractionDeps, interaction: ChatInputCommandInteraction) {
+        const userId= interaction.user.id;
+        const guildOwner = (await dependencies.client.guilds.fetch(interaction.guildId!))!.ownerId;
+
+        if(userId !== guildOwner){
+            await interaction.reply({content:'You are not the guild owner', flags: MessageFlags.Ephemeral})
+            return
+        }
+
         // await interaction.deferReply();
         const channel: Channel = (await dependencies.client.channels.fetch(interaction.channelId))!;
         if (!channel) {
@@ -35,7 +43,7 @@ module.exports = {
                 return
             }
 
-            const sent = await channel.send('React to this message with :white_check_mark: to start setup')
+            const sent = await channel.send('React to this message with :white_check_mark: to start your shockbot setup. You will get a DM from the bot with more instructions.')
             sent.react('✅')
 
             const guildValues: typeof guildsTable.$inferInsert = {

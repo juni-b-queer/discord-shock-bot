@@ -78,7 +78,7 @@ module.exports = {
 
             if (parsedData.apiToken !== null) {
                 await dependencies.database.update(usersTable).set({apiKey: parsedData.apiToken}).where(eq(usersTable.id, dbUser!.id))
-                output += '\nAPI token updated'
+                output += '\nAPI token updated (delete your sent message!)'
             }
 
             output+= '\n\nRemember to use `/unpause` in your server to start receiving shocks.'

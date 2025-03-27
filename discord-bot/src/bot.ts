@@ -51,13 +51,6 @@ console.log('commands')
 const eventsPath = path.join(__dirname, 'events');
 const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith('.ts'));
 
-// const connection = await mysql.createConnection({
-//     host: "host",
-//     user: "user",
-//     database: "database",
-// });
-
-// const db = drizzle({client: connection, schema: schema});
 
 const deps: InteractionDeps = {
     client,

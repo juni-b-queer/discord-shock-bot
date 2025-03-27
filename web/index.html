@@ -140,6 +140,11 @@
         <div v-if="shockers.length === 0">
             Retrieving shockers...
         </div>
+        <div v-else>
+            <h2>Select shockers to add to the Shockbot</h2>
+            <p>Editing the names below does not edit them in openshock</p>
+            <p>The names are used by the shockbot to easily identify a shocker to control</p>
+        </div>
         <template v-for="shocker in shockers">
             <div class="shocker-card">
                 <label>

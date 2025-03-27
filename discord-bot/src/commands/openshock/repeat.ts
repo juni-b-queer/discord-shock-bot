@@ -7,7 +7,7 @@ import {usersTable} from "../../db/schema";
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('repeat')
-        .setDescription('Repeat shocks')
+        .setDescription('WIP - Repeat shocks')
         .addMentionableOption(option =>
             option.setName('user')
                 .setDescription('The User to shock').setRequired(true))

@@ -2,6 +2,7 @@ import {EmbedBuilder, Events, MessageFlags} from 'discord.js';
 import {InteractionDeps} from "../utils/deps";
 import {guildsTable, usersTable} from "../db/schema";
 import {and, eq} from "drizzle-orm";
+import {debugLog} from "../utils/debug";
 
 module.exports = {
     name: Events.MessageReactionAdd,
@@ -50,7 +51,7 @@ module.exports = {
                 }
 
                 await dependencies.database.insert(usersTable).values(userValues)
-                console.log(`Added user ${user.username} to database`)
+                debugLog("INFO", "messageReaction", `Added user ${user.username} to database`)
             }
         }
     },

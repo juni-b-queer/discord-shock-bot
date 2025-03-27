@@ -83,6 +83,8 @@ module.exports = {
 
             await interaction.author.send(output)
 
+            debugLog("INFO", "messageCreate", `Shocker setup for ${dbUser!.globalName}`)
+
             return
         } else {
             const guildId = interaction.guildId

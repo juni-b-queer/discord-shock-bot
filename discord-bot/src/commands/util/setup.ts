@@ -1,7 +1,15 @@
-import {BaseGuildTextChannel, Channel, ChatInputCommandInteraction, Client, SlashCommandBuilder} from 'discord.js';
+import {
+    BaseGuildTextChannel,
+    Channel,
+    ChatInputCommandInteraction,
+    Client,
+    MessageFlags,
+    SlashCommandBuilder
+} from 'discord.js';
 import {InteractionDeps} from "../../utils/deps";
 import {guildsTable} from "../../db/schema";
 import {eq} from "drizzle-orm";
+import {debugLog} from "../../utils/debug";
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -15,7 +23,7 @@ module.exports = {
         }
         if(channel.isSendable()){
             const guildId = interaction.guildId!
-            console.log(`Setup for guild ${guildId}`)
+            debugLog("INFO", "setup", `Setup for guild ${guildId}`)
             const existingGuild = await dependencies.database
                 .select().from(guildsTable)
                 .where(eq(guildsTable.guildId, guildId))
@@ -37,7 +45,7 @@ module.exports = {
 
             await dependencies.database.insert(guildsTable).values(guildValues)
         }
-        await interaction.followUp('Setup is ready, please delete this message')
+        await interaction.followUp({content: 'Setup is ready', flags: MessageFlags.Ephemeral})
 
     },
 };

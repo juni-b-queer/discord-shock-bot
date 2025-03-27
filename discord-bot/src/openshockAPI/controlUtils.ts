@@ -3,6 +3,7 @@ import {ChatInputCommandInteraction, GuildMember} from "discord.js";
 import {eq} from "drizzle-orm";
 import {usersTable} from "../db/schema";
 import {OpenshockControlSchema} from "./openshockClient";
+import {debugLog} from "../utils/debug";
 
 export async function generateAndRunBasicControlRequests(dependencies: InteractionDeps, interaction: ChatInputCommandInteraction, action:"Shock"|"Vibrate") {
     const member: GuildMember = interaction.options.getMentionable('user') as GuildMember;
@@ -33,7 +34,6 @@ export async function generateAndRunBasicControlRequests(dependencies: Interacti
         const selectedShocker = user.shockers
             .find(shocker => shocker.name === interaction.options.getString('shocker')!)!
         shockerIds.push(selectedShocker.shockerId)
-        console.log(selectedShocker.shockerId)
     }
 
 
@@ -55,5 +55,9 @@ export async function generateAndRunBasicControlRequests(dependencies: Interacti
     await dependencies.openshockClient.controlDevice(apiKey, controlRequests)
 
     const messageAction = action === "Shock" ? "Shocking" : "Vibrating"
-    await interaction.reply(`${messageAction} ${user.globalName} for ${interaction.options.getNumber('duration')}ms with intensity ${interaction.options.getNumber('intensity')}`);
+
+    const output = `${messageAction} ${user.globalName} for ${options.duration}ms with intensity ${options.intensity}`
+    await interaction.reply(output);
+
+    debugLog("INFO", action, output)
 }

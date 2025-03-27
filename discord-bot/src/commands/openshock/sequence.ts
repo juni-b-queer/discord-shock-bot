@@ -7,7 +7,7 @@ import {shockerAutocomplete} from "../../utils/autocomplete";
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('sequence')
-        .setDescription('Sequence command')
+        .setDescription('WIP - Sequence command')
         .addMentionableOption(option =>
             option.setName('user')
                 .setDescription('The User to shock').setRequired(true))

@@ -24,7 +24,7 @@ module.exports = {
                 .setDescription('The shock intensity').setRequired(true))
         .addNumberOption(option =>
             option.setName('duration')
-                .setDescription('The shock duration in milliseconds').setRequired(true))
+                .setDescription('The shock duration in milliseconds (minimum 300)').setRequired(true))
         .addStringOption(option =>
             option.setName('shocker')
                 .setDescription('The name of the users shocker')

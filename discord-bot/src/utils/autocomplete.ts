@@ -10,7 +10,11 @@ export async function shockerAutocomplete(dependencies: InteractionDeps, interac
         with: {
             shockers: true,
         }
-    }))!
+    }))
+
+    if(!user){
+        return []
+    }
 
     const shockers = user.shockers
     const focusedValue = interaction.options.getFocused();

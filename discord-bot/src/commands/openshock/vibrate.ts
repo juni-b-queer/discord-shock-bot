@@ -1,9 +1,6 @@
-import {AutocompleteInteraction, ChatInputCommandInteraction, GuildMember, SlashCommandBuilder} from 'discord.js';
+import {AutocompleteInteraction, ChatInputCommandInteraction, SlashCommandBuilder} from 'discord.js';
 import {InteractionDeps} from "../../utils/deps";
-import {eq} from "drizzle-orm";
-import {usersTable} from "../../db/schema";
 import {shockerAutocomplete} from "../../utils/autocomplete";
-import {OpenshockControlSchema} from "../../openshockAPI/openshockClient";
 import {generateAndRunBasicControlRequests} from "../../openshockAPI/controlUtils";
 
 module.exports = {
@@ -18,7 +15,7 @@ module.exports = {
                 .setDescription('The shock intensity').setRequired(true))
         .addNumberOption(option =>
             option.setName('duration')
-                .setDescription('The shock duration in milliseconds').setRequired(true))
+                .setDescription('The shock duration in milliseconds (minimum 300)').setRequired(true))
         .addStringOption(option =>
             option.setName('shocker')
                 .setDescription('The name of the users shocker')

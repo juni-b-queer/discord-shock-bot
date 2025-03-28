@@ -7,6 +7,7 @@ import {and, eq} from "drizzle-orm";
 import {guildsTable, shockersTable, usersTable} from "./schema";
 import {ChatInputCommandInteraction, GuildMember, MessageFlags} from "discord.js";
 import {debugLog} from "../utils/debug";
+import {int} from "drizzle-orm/mysql-core";
 
 dotenv.config({path: path.join(__dirname, '../../../.env')});
 

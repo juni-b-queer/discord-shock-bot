@@ -2,6 +2,7 @@ import {InteractionDeps} from "../utils/deps";
 import {ChatInputCommandInteraction, GuildMember, MessageFlags} from "discord.js";
 import {OpenshockControlSchema} from "./openshockClient";
 import {debugLog} from "../utils/debug";
+import {int} from "drizzle-orm/mysql-core";
 
 export async function generateAndRunBasicControlRequests(dependencies: InteractionDeps, interaction: ChatInputCommandInteraction, action:"Shock"|"Vibrate") {
     const options = {
@@ -20,7 +21,7 @@ export async function generateAndRunBasicControlRequests(dependencies: Interacti
     if(user.paused){
         return await interaction.reply({content: 'This user has paused their shockers', flags:MessageFlags.Ephemeral})
     }
-    if(user.intensityLimit < options.intensity){
+    if(user.intensityLimit < options.intensity && action === "Shock"){
         options.intensity = user.intensityLimit
         // return await interaction.reply({content: `This user has an intensity limit of ${user.intensityLimit}`, flags:MessageFlags.Ephemeral})
     }
@@ -70,13 +71,31 @@ export async function generateAndRunBasicControlRequests(dependencies: Interacti
     debugLog("INFO", action, output)
 }
 
-export function sequenceParser(sequenceString: string, repetitions: number = 1): OpenshockControlSchema[]{
+
+
+export function sequenceParser(shockerId: string, sequenceString: string, repetitions: number = 1): OpenshockControlSchema[]{
     const commands = sequenceString.split(',')
 
     let returnedCommands: OpenshockControlSchema[] = []
 
     for(const command of commands){
+        const commandSplit = command.split('-')
+        const action: string = commandSplit[0].trim()
+        const intensity = commandSplit[1].trim()
+        const duration = commandSplit[2].trim()
 
+        const osAction: "Shock" | "Vibrate" | "Stop" = action === "s" ? "Shock" : action === "v" ? "Vibrate" : "Stop"
+
+
+
+        returnedCommands.push({
+            duration: parseFloat(duration)*1000,
+            exclusive: true,
+            id: shockerId,
+            intensity: parseInt(intensity),
+            type: osAction
+
+        })
     }
 
     return returnedCommands

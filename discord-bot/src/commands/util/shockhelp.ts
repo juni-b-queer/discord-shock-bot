@@ -27,11 +27,11 @@ module.exports = {
             },
             {
                 name: '/repeat {user} {sequence} {repetitions} {shocker?}',
-                value: '**WIP** Not yet implemented'
+                value: 'Run a repeated sequence of actions, Shock or Vibrate, defined by the sequence string  ({s,v}-{intensity}-{seconds})'
             },
             {
                 name: '/sequence {user} {sequence} {shocker?}',
-                value: '**WIP** Not yet implemented'
+                value: 'Run a sequence of actions, Shock or Vibrate, defined by the sequence string  ({s,v}-{intensity}-{seconds})'
             },
             {
                 name: '/list {user?}',

@@ -1,9 +1,9 @@
-import { Client, Events } from 'discord.js';
+import { Client, Events } from 'discord.js'
 
-module.exports = {
-    name: Events.ClientReady,
-    once: true,
-    execute(client: Client) {
-        console.log(`Ready! Logged in as ${client.user?.tag}`);
-    },
-};
+export const name = Events.ClientReady
+
+export const once = true
+
+export function execute(client: Client) {
+    console.log(`Ready! Logged in as ${client.user?.tag}`)
+}

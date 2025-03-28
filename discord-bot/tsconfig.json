@@ -1,15 +1,28 @@
 {
     "compilerOptions": {
-        "target": "ES6",
-        "module": "CommonJS",
         "rootDir": "src",
         "outDir": "dist",
-        "strict": true,
         "esModuleInterop": true,
+        "typeRoots": ["src/@types", "node_modules/@types"],
+        "lib": ["ESNext"],
+        "module": "esnext",
+        "target": "esnext",
+        "moduleResolution": "bundler",
+        "moduleDetection": "force",
+        "allowImportingTsExtensions": true,
+        "noEmit": true,
+        "composite": true,
+        "strict": true,
+        "downlevelIteration": true,
         "skipLibCheck": true,
+        "jsx": "react-jsx",
+        "allowSyntheticDefaultImports": true,
         "forceConsistentCasingInFileNames": true,
-        "typeRoots": ["src/@types", "node_modules/@types"]
+        "allowJs": true,
+        "types": [
+            "bun-types" // add Bun global
+        ]
     },
     "include": ["src"],
-    "exclude": ["node_modules", "dist"]
+    "exclude": ["node_modules", "build"]
 }

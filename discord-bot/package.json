@@ -3,15 +3,17 @@
     "version": "1.0.0",
     "description": "A modular Discord bot using TypeScript and discord.js",
     "main": "dist/bot.js",
+    "type": "module",
     "scripts": {
         "start": "node dist/bot.js",
-        "build": "tsc",
-        "dev": "ts-node src/bot.ts",
-        "refresh-commands": "ts-node src/scripts/deploy-commands.ts",
+        "build": "bun build --target=bun ./src/bot.ts --outfile=./build/bot.ts",
+        "dev": "bun run src/bot.ts",
+        "refresh-commands": "bun run src/scripts/deploy-commands.ts",
         "update-db": "npx drizzle-kit push",
         "format": "npx prettier . --write"
     },
     "dependencies": {
+        "@types/bun": "^1.2.8",
         "discord.js": "^14.18.0",
         "dotenv": "^16.4.7",
         "drizzle-orm": "^0.41.0",

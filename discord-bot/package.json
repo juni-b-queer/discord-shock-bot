@@ -6,7 +6,7 @@
     "type": "module",
     "scripts": {
         "start": "node dist/bot.js",
-        "build": "bun build --target=bun ./src/index.ts --outfile=./dist/index.ts",
+        "build": "bun build --target=bun ./src/bot.ts --outfile=./build/bot.ts",
         "dev": "bun run src/bot.ts",
         "refresh-commands": "bun run src/scripts/deploy-commands.ts",
         "update-db": "npx drizzle-kit push",

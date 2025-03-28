@@ -9,6 +9,8 @@ import { shockerAutocomplete } from '../../utils/autocomplete'
 import { OpenshockControlSchema } from '../../openshockAPI/openshockClient'
 import { sequenceParser } from '../../openshockAPI/controlUtils'
 import { debugLog } from '../../utils/debug'
+import { eq } from 'drizzle-orm'
+import { sequencesTable } from '../../db/schema.ts'
 
 export const data = new SlashCommandBuilder()
     .setName('sequence')
@@ -124,8 +126,8 @@ export async function autocomplete(
         if (!guild) {
             await interaction.respond([])
         }
-
         const focusedValue = interaction.options.getFocused()
+
         const filtered = guild!.sequences.filter((choice) =>
             choice.name.includes(focusedValue)
         )

@@ -17,6 +17,16 @@ services:
     networks:
       - shockbot
 
+  dicord_shock_bot:
+    build: ./discord-bot
+    restart: unless-stopped
+    env_file:
+      - .env
+    depends_on:
+      - mysql
+    networks:
+      - shockbot
+
 networks:
   shockbot:
     driver: bridge

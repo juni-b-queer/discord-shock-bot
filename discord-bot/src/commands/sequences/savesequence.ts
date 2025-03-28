@@ -4,6 +4,7 @@ import {
     SlashCommandBuilder,
 } from 'discord.js'
 import { InteractionDeps } from '../../utils/deps'
+import { debugLog } from '../../utils/debug.ts'
 
 export const data = new SlashCommandBuilder()
     .setName('savesequence')
@@ -37,6 +38,12 @@ export async function execute(
         name,
         userId,
         guildId
+    )
+
+    debugLog(
+        'INFO',
+        'savesequence',
+        `Saved sequence ${sequenceString} as ${name} for user ${userId} in guild ${guildId}`
     )
 
     await interaction.reply({

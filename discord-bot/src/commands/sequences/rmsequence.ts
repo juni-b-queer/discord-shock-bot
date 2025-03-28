@@ -7,6 +7,7 @@ import {
 import { InteractionDeps } from '../../utils/deps'
 import { eq } from 'drizzle-orm'
 import { sequencesTable } from '../../db/schema'
+import { debugLog } from '../../utils/debug.ts'
 
 export const data = new SlashCommandBuilder()
     .setName('rmsequence')
@@ -40,6 +41,12 @@ export async function execute(
         .delete(sequencesTable)
         .where(eq(sequencesTable.id, sequence.id))
 
+    debugLog(
+        'INFO',
+        'rmsequence',
+        `deleted sequence ${name} for user ${userId}`
+    )
+
     await interaction.reply({
         content: `Sequence ${name} deleted`,
         flags: MessageFlags.Ephemeral,
@@ -60,6 +67,7 @@ export async function autocomplete(
     const filtered = user!.sequences.filter((choice) =>
         choice.name.includes(focusedValue)
     )
+
     await interaction.respond(
         filtered.map((choice) => ({
             name: `${choice.name} (${choice.sequence})`,

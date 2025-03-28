@@ -2,35 +2,34 @@ import {
     ChatInputCommandInteraction,
     MessageFlags,
     SlashCommandBuilder,
-} from 'discord.js';
-import { InteractionDeps } from '../../utils/deps';
-import { debugLog } from '../../utils/debug';
+} from 'discord.js'
+import { InteractionDeps } from '../../utils/deps'
+import { debugLog } from '../../utils/debug'
 
-module.exports = {
-    data: new SlashCommandBuilder()
-        .setName('unpause')
-        .setDescription('Unpause user shockers'),
-    async execute(
-        dependencies: InteractionDeps,
-        interaction: ChatInputCommandInteraction
-    ) {
-        const guildUser = interaction.user.id;
-        const toggledPause = await dependencies.dbClient.toggleUserPaused(
-            guildUser,
-            false
-        );
+export const data = new SlashCommandBuilder()
+    .setName('unpause')
+    .setDescription('Unpause user shockers')
 
-        if (!toggledPause) {
-            return await interaction.reply({
-                content: 'Failed to unpause shockers.',
-                flags: MessageFlags.Ephemeral,
-            });
-        }
-        debugLog('INFO', 'unpause', `Unpaused ${interaction.user.username}`);
+export async function execute(
+    dependencies: InteractionDeps,
+    interaction: ChatInputCommandInteraction
+) {
+    const guildUser = interaction.user.id
+    const toggledPause = await dependencies.dbClient.toggleUserPaused(
+        guildUser,
+        false
+    )
 
-        await interaction.reply({
-            content: 'Unpaused your shockers',
+    if (!toggledPause) {
+        return await interaction.reply({
+            content: 'Failed to unpause shockers.',
             flags: MessageFlags.Ephemeral,
-        });
-    },
-};
+        })
+    }
+    debugLog('INFO', 'unpause', `Unpaused ${interaction.user.username}`)
+
+    await interaction.reply({
+        content: 'Unpaused your shockers',
+        flags: MessageFlags.Ephemeral,
+    })
+}

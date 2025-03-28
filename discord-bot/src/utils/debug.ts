@@ -10,5 +10,7 @@ const chicagoTime = new Intl.DateTimeFormat('en-US', {
 
 export function debugLog(level: string, command: string, message: string) {
     const now = new Date();
-    console.log(`${level} | ${chicagoTime.format(now)} | ${command} | ${message}`);
+    console.log(
+        `${level} | ${chicagoTime.format(now)} | ${command} | ${message}`
+    );
 }

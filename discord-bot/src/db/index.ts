@@ -1,15 +1,24 @@
-import {drizzle} from "drizzle-orm/mysql2";
-import dotenv from "dotenv";
-import path from "path";
-import * as schema from "./schema";
-import {createPool} from "mysql2/promise";
-import {and, eq} from "drizzle-orm";
-import {guildsTable, shockersTable, usersTable} from "./schema";
-import {ChatInputCommandInteraction, GuildMember, MessageFlags} from "discord.js";
-import {debugLog} from "../utils/debug";
-import {int} from "drizzle-orm/mysql-core";
+import { drizzle } from 'drizzle-orm/mysql2';
+import dotenv from 'dotenv';
+import path from 'path';
+import * as schema from './schema';
+import { createPool } from 'mysql2/promise';
+import { and, eq } from 'drizzle-orm';
+import {
+    guildsTable,
+    sequencesTable,
+    shockersTable,
+    usersTable,
+} from './schema';
+import {
+    ChatInputCommandInteraction,
+    GuildMember,
+    MessageFlags,
+} from 'discord.js';
+import { debugLog } from '../utils/debug';
+import { int } from 'drizzle-orm/mysql-core';
 
-dotenv.config({path: path.join(__dirname, '../../../.env')});
+dotenv.config({ path: path.join(__dirname, '../../../.env') });
 
 const pool = createPool({
     uri: process.env.DATABASE_URL!,
@@ -18,155 +27,247 @@ const pool = createPool({
 // Initialize Drizzle with schema
 export const db = drizzle(pool, { schema, mode: 'default' });
 
-
 // TODO better class for db interactions
 export class DBClient {
-    constructor(private readonly drizzleClient: typeof db) {
-    }
+    constructor(private readonly drizzleClient: typeof db) {}
 
     public get db() {
         return this.drizzleClient;
     }
 
-    public async getUsersFromGuild(guildId: string){
+    public async getUsersFromGuild(guildId: string) {
         return await this.db.query.guildsTable.findFirst({
             where: eq(guildsTable.guildId, guildId),
-            with:{
+            with: {
                 users: {
                     with: {
-                        shockers: true
-                    }
-                }
-            }
-        })
+                        shockers: true,
+                    },
+                },
+            },
+        });
     }
 
-    public async getUser(userGuildId: string){
+    public async getUser(userGuildId: string) {
         const user = await this.db.query.usersTable.findFirst({
-            where: eq(usersTable.userId,userGuildId),
+            where: eq(usersTable.userId, userGuildId),
             with: {
-                shockers: true
-            }
-        })
-        if(!user){
+                shockers: true,
+                sequences: true,
+            },
+        });
+        if (!user) {
             return null;
         }
         return user;
     }
 
-    public async getUserFromInteractionOptions(interaction: ChatInputCommandInteraction){
-        const member: GuildMember = interaction.options.getMentionable('user') as GuildMember;
+    public async getGuild(guildId: string) {
+        const user = await this.db.query.guildsTable.findFirst({
+            where: eq(guildsTable.guildId, guildId),
+            with: {
+                sequences: true,
+                users: {
+                    with: {
+                        shockers: true,
+                    },
+                },
+            },
+        });
+        if (!user) {
+            return null;
+        }
+        return user;
+    }
+
+    public async getUserFromInteractionOptions(
+        interaction: ChatInputCommandInteraction
+    ) {
+        const member: GuildMember = interaction.options.getMentionable(
+            'user'
+        ) as GuildMember;
         return await this.db.query.usersTable.findFirst({
             where: eq(usersTable.userId, member.user.id),
             with: {
-                shockers: true
-            }
-        })
+                shockers: true,
+            },
+        });
     }
 
-    public async toggleUserPaused(user: typeof usersTable | string, paused: boolean){
+    public async getUserShockerByName(
+        guildUserId: string,
+        shockerName: string
+    ) {
+        const user = await this.getUser(guildUserId);
+        if (!user) {
+            return null;
+        }
+        return user.shockers.find((shocker) => shocker.name === shockerName);
+    }
+
+    public async saveSequence(
+        sequence: string,
+        name: string,
+        userId: string,
+        guildId: string
+    ) {
         try {
-            if(typeof user === 'string'){
+            const dbUser = await this.getUser(userId);
+            const dbGuild = await this.getGuild(guildId);
+
+            await this.db.insert(sequencesTable).values({
+                userId: dbUser!.id,
+                guildId: dbGuild!.id,
+                sequence: sequence,
+                name: name,
+            });
+        } catch (e) {
+            debugLog(
+                'ERROR',
+                'saveSequence',
+                `failed to save sequence for user ${userId}`
+            );
+        }
+    }
+
+    public async toggleUserPaused(
+        user: typeof usersTable | string,
+        paused: boolean
+    ) {
+        try {
+            if (typeof user === 'string') {
                 const dbUser = await this.db.query.usersTable.findFirst({
                     where: eq(usersTable.userId, user),
-                })
-                if(!dbUser){
+                });
+                if (!dbUser) {
                     return false;
                 }
 
-                await this.db.update(usersTable)
-                    .set({paused: paused})
+                await this.db
+                    .update(usersTable)
+                    .set({ paused: paused })
                     .where(eq(usersTable.id, dbUser.id));
 
                 return true;
-
-            }else{
-                await this.db.update(usersTable)
-                    .set({paused: paused})
+            } else {
+                await this.db
+                    .update(usersTable)
+                    .set({ paused: paused })
                     .where(eq(usersTable.id, user.id));
 
                 return true;
             }
-        }catch (e){
-            debugLog("ERROR", "toggleUserPaused", `failed to toggle pause for user ${user}`)
+        } catch (e) {
+            debugLog(
+                'ERROR',
+                'toggleUserPaused',
+                `failed to toggle pause for user ${user}`
+            );
             return false;
         }
     }
 
-    public async editUserIntensityLimit(user: typeof usersTable | string, limit: number){
+    public async editUserIntensityLimit(
+        user: typeof usersTable | string,
+        limit: number
+    ) {
         try {
-            if(typeof user === 'string'){
+            if (typeof user === 'string') {
                 const dbUser = await this.db.query.usersTable.findFirst({
                     where: eq(usersTable.userId, user),
-                })
-                if(!dbUser){
+                });
+                if (!dbUser) {
                     return false;
                 }
 
-                await this.db.update(usersTable)
-                    .set({intensityLimit: limit})
+                await this.db
+                    .update(usersTable)
+                    .set({ intensityLimit: limit })
                     .where(eq(usersTable.id, dbUser.id));
 
                 return true;
-
-            }else{
-                await this.db.update(usersTable)
-                    .set({intensityLimit: limit})
+            } else {
+                await this.db
+                    .update(usersTable)
+                    .set({ intensityLimit: limit })
                     .where(eq(usersTable.id, user.id));
 
                 return true;
             }
-        }catch (e){
-            debugLog("ERROR", "editUserIntensityLimit", `failed to update intensity limit for user ${user}`)
+        } catch (e) {
+            debugLog(
+                'ERROR',
+                'editUserIntensityLimit',
+                `failed to update intensity limit for user ${user}`
+            );
             return false;
         }
     }
 
-    public async setUserDefaultShocker(user: typeof usersTable | string, shockerName: string){
+    public async setUserDefaultShocker(
+        user: typeof usersTable | string,
+        shockerName: string
+    ) {
         try {
-            if(typeof user === 'string'){
+            if (typeof user === 'string') {
                 const dbUser = await this.db.query.usersTable.findFirst({
                     where: eq(usersTable.userId, user),
-                })
-                if(!dbUser){
+                });
+                if (!dbUser) {
                     return false;
                 }
 
-                await this.db.update(shockersTable).set({default: false}).where(eq(shockersTable.userId, dbUser.id))
+                await this.db
+                    .update(shockersTable)
+                    .set({ default: false })
+                    .where(eq(shockersTable.userId, dbUser.id));
 
-                await this.db.update(shockersTable).set({default: true})
-                    .where(and(
-                        eq(shockersTable.name, shockerName),
-                        eq(shockersTable.userId, dbUser.id)
-                    ))
+                await this.db
+                    .update(shockersTable)
+                    .set({ default: true })
+                    .where(
+                        and(
+                            eq(shockersTable.name, shockerName),
+                            eq(shockersTable.userId, dbUser.id)
+                        )
+                    );
 
                 return true;
+            } else {
+                await this.db
+                    .update(shockersTable)
+                    .set({ default: false })
+                    .where(eq(shockersTable.userId, user.id));
 
-            }else{
-                await this.db.update(shockersTable).set({default: false})
-                    .where(eq(shockersTable.userId, user.id))
-
-                await this.db.update(shockersTable).set({default: true})
-                    .where(and(
-                        eq(shockersTable.name, shockerName),
-                        eq(shockersTable.userId, user.id)
-                    ))
+                await this.db
+                    .update(shockersTable)
+                    .set({ default: true })
+                    .where(
+                        and(
+                            eq(shockersTable.name, shockerName),
+                            eq(shockersTable.userId, user.id)
+                        )
+                    );
 
                 return true;
             }
-        }catch (e){
-            debugLog("ERROR", "setUserDefaultShocker", `failed to set user default shocker ${user}`)
+        } catch (e) {
+            debugLog(
+                'ERROR',
+                'setUserDefaultShocker',
+                `failed to set user default shocker ${user}`
+            );
             return false;
         }
     }
 
-    public async getUserDefaultShocker(user: typeof usersTable | string){
+    public async getUserDefaultShocker(user: typeof usersTable | string) {
         try {
-            if(typeof user === 'string'){
+            if (typeof user === 'string') {
                 const dbUser = await this.db.query.usersTable.findFirst({
                     where: eq(usersTable.userId, user),
-                })
-                if(!dbUser){
+                });
+                if (!dbUser) {
                     return false;
                 }
 
@@ -175,18 +276,21 @@ export class DBClient {
                         eq(shockersTable.default, true),
                         eq(shockersTable.userId, dbUser.id)
                     ),
-                })
-
-            }else{
+                });
+            } else {
                 return await this.db.query.shockersTable.findFirst({
                     where: and(
                         eq(shockersTable.default, true),
                         eq(shockersTable.userId, user.id)
                     ),
-                })
+                });
             }
-        }catch (e){
-            debugLog("ERROR", "getUserDefaultShocker", `failed to get user default shocker ${user}`)
+        } catch (e) {
+            debugLog(
+                'ERROR',
+                'getUserDefaultShocker',
+                `failed to get user default shocker ${user}`
+            );
             return false;
         }
     }

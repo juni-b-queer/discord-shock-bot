@@ -1,21 +1,21 @@
-import {Client, Collection, GatewayIntentBits, Partials} from 'discord.js';
+import { Client, Collection, GatewayIntentBits, Partials } from 'discord.js';
 import dotenv from 'dotenv';
-import path from "path";
-import fs from "fs";
-import {InteractionDeps} from "./utils/deps";
-import * as schema from "./db/schema";
-import {openShockClient} from "./openshockAPI/openshockClient";
-import mysql from "mysql2/promise";
-import {drizzle, MySql2Database} from "drizzle-orm/mysql2";
-import {db, DBClient} from "./db";
+import path from 'path';
+import fs from 'fs';
+import { InteractionDeps } from './utils/deps';
+import * as schema from './db/schema';
+import { openShockClient } from './openshockAPI/openshockClient';
+import mysql from 'mysql2/promise';
+import { drizzle, MySql2Database } from 'drizzle-orm/mysql2';
+import { db, DBClient } from './db';
 
 interface ClientWithCommands extends Client {
-    commands: Collection<string, any>
+    commands: Collection<string, any>;
 }
 
-dotenv.config({path: path.join(__dirname, '../../.env')});
+dotenv.config({ path: path.join(__dirname, '../../.env') });
 
-console.log('Starting Bot')
+console.log('Starting Bot');
 
 const client: ClientWithCommands = new Client({
     intents: [
@@ -23,7 +23,7 @@ const client: ClientWithCommands = new Client({
         GatewayIntentBits.GuildMessages,
         GatewayIntentBits.MessageContent,
         GatewayIntentBits.GuildMessageReactions,
-        GatewayIntentBits.DirectMessages
+        GatewayIntentBits.DirectMessages,
     ],
     partials: [Partials.Message, Partials.Channel, Partials.Reaction],
 }) as ClientWithCommands;
@@ -34,31 +34,35 @@ const commandFolders = fs.readdirSync(foldersPath);
 
 for (const folder of commandFolders) {
     const commandsPath = path.join(foldersPath, folder);
-    const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.ts'));
+    const commandFiles = fs
+        .readdirSync(commandsPath)
+        .filter((file) => file.endsWith('.ts'));
     for (const file of commandFiles) {
         const filePath = path.join(commandsPath, file);
         const command = require(filePath);
         if ('data' in command && 'execute' in command) {
             client.commands.set(command.data.name, command);
         } else {
-            console.log(`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`);
+            console.log(
+                `[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`
+            );
         }
     }
 }
 
-console.log('Commands Initialized')
+console.log('Commands Initialized');
 
 const eventsPath = path.join(__dirname, 'events');
-const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith('.ts'));
-
+const eventFiles = fs
+    .readdirSync(eventsPath)
+    .filter((file) => file.endsWith('.ts'));
 
 const deps: InteractionDeps = {
     client,
     database: db,
     dbClient: new DBClient(db),
-    openshockClient: openShockClient
-
-}
+    openshockClient: openShockClient,
+};
 
 for (const file of eventFiles) {
     const filePath = path.join(eventsPath, file);
@@ -70,5 +74,5 @@ for (const file of eventFiles) {
     }
 }
 
-console.log('Events Initialized')
+console.log('Events Initialized');
 client.login(process.env.DISCORD_TOKEN);

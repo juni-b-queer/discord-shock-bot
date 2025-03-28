@@ -1,9 +1,14 @@
-import { boolean, int, mysqlTable, varchar, bigint } from 'drizzle-orm/mysql-core';
+import {
+    boolean,
+    int,
+    mysqlTable,
+    varchar,
+    bigint,
+} from 'drizzle-orm/mysql-core';
 import { relations } from 'drizzle-orm';
 
-
 export const guildsTable = mysqlTable('guilds_table', {
-    id: bigint({mode: "bigint"}).autoincrement().notNull().primaryKey(), // Primary key
+    id: bigint({ mode: 'bigint' }).autoincrement().notNull().primaryKey(), // Primary key
     guildId: varchar({ length: 255 }).notNull(),
     setupMessageId: varchar({ length: 255 }).notNull(),
     shockChannel: int(),
@@ -11,9 +16,9 @@ export const guildsTable = mysqlTable('guilds_table', {
 });
 
 export const usersTable = mysqlTable('users_table', {
-    id: bigint({mode: "bigint"}).autoincrement().notNull().primaryKey(), // Primary key
+    id: bigint({ mode: 'bigint' }).autoincrement().notNull().primaryKey(), // Primary key
     userId: varchar({ length: 255 }).notNull().unique(),
-    guildId: bigint({mode: "bigint"})
+    guildId: bigint({ mode: 'bigint' })
         .notNull()
         .references(() => guildsTable.id),
     username: varchar({ length: 255 }),
@@ -24,8 +29,8 @@ export const usersTable = mysqlTable('users_table', {
 });
 
 export const shockersTable = mysqlTable('shockers_table', {
-    id: bigint({mode: "bigint"}).autoincrement().notNull().primaryKey(), // Primary key
-    userId: bigint({mode: "bigint"})
+    id: bigint({ mode: 'bigint' }).autoincrement().notNull().primaryKey(), // Primary key
+    userId: bigint({ mode: 'bigint' })
         .notNull()
         .references(() => usersTable.id),
     shareCode: varchar({ length: 255 }),
@@ -34,8 +39,21 @@ export const shockersTable = mysqlTable('shockers_table', {
     default: boolean().notNull().default(false),
 });
 
+export const sequencesTable = mysqlTable('sequences_table', {
+    id: bigint({ mode: 'bigint' }).autoincrement().notNull().primaryKey(), // Primary key
+    userId: bigint({ mode: 'bigint' })
+        .notNull()
+        .references(() => usersTable.id),
+    guildId: bigint({ mode: 'bigint' })
+        .notNull()
+        .references(() => guildsTable.id),
+    sequence: varchar({ length: 255 }).notNull(),
+    name: varchar({ length: 255 }).notNull(),
+});
+
 export const guildRelations = relations(guildsTable, ({ many }) => ({
     users: many(usersTable),
+    sequences: many(sequencesTable),
 }));
 
 export const userRelations = relations(usersTable, ({ one, many }) => ({
@@ -44,11 +62,23 @@ export const userRelations = relations(usersTable, ({ one, many }) => ({
         references: [guildsTable.id],
     }),
     shockers: many(shockersTable),
+    sequences: many(sequencesTable),
 }));
 
 export const shockerRelations = relations(shockersTable, ({ one }) => ({
     user: one(usersTable, {
         fields: [shockersTable.userId],
         references: [usersTable.id],
+    }),
+}));
+
+export const sequenceRelations = relations(sequencesTable, ({ one }) => ({
+    user: one(usersTable, {
+        fields: [sequencesTable.userId],
+        references: [usersTable.id],
+    }),
+    guild: one(guildsTable, {
+        fields: [sequencesTable.userId],
+        references: [guildsTable.id],
     }),
 }));

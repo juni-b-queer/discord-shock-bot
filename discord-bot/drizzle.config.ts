@@ -1,8 +1,8 @@
 import { defineConfig } from 'drizzle-kit';
-import * as dotenv from "dotenv";
-import * as path from "path";
+import * as dotenv from 'dotenv';
+import * as path from 'path';
 
-dotenv.config({path: path.join(__dirname, '../.env')});
+dotenv.config({ path: path.join(__dirname, '../.env') });
 
 export default defineConfig({
     out: './drizzle',

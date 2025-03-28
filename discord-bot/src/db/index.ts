@@ -11,9 +11,6 @@ import {int} from "drizzle-orm/mysql-core";
 
 dotenv.config({path: path.join(__dirname, '../../../.env')});
 
-// export const db: MySql2Database = drizzle(process.env.DATABASE_URL ?? '');
-//
-
 const pool = createPool({
     uri: process.env.DATABASE_URL!,
 });

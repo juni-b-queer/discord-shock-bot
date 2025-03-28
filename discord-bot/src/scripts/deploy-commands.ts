@@ -2,6 +2,8 @@ import {REST, Routes} from 'discord.js';
 import dotenv from 'dotenv';
 import fs from 'node:fs';
 import path from 'node:path';
+import {db} from "../db";
+import {guildsTable} from "../db/schema";
 
 
 
@@ -35,16 +37,22 @@ const rest = new REST().setToken(process.env.DISCORD_TOKEN ?? '');
 // and deploy your commands!
 (async () => {
     try {
-        console.log(`Started refreshing ${commands.length} application (/) commands.`);
+        const guilds = await db.select().from(guildsTable)
+        for (const guild of guilds) {
+            console.log(`Started refreshing ${commands.length} application (/) commands for ${guild.guildId}.`);
 
-        // The put method is used to fully refresh all commands in the guild with the current set
-        const data = await rest.put(
-            Routes.applicationGuildCommands(process.env.CLIENT_ID ?? '', process.env.GUILD_ID ?? ''),
-            { body: commands },
-        );
+            // The put method is used to fully refresh all commands in the guild with the current set
+            const data = await rest.put(
+                Routes.applicationGuildCommands(process.env.CLIENT_ID ?? '', guild.guildId),
+                { body: commands },
+            );
 
-        // @ts-ignore
-        console.log(`Successfully reloaded ${data.length} application (/) commands.`);
+            // @ts-ignore
+            console.log(`Successfully reloaded ${data.length} application (/) commands for ${guild.guildId}.`);
+        }
+        console.log('Done')
+        return process.exit(0);
+
     } catch (error) {
         // And of course, make sure you catch and log any errors!
         console.error(error);
